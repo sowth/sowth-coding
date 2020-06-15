@@ -1,0 +1,94 @@
+* {
+    position: relative;
+}
+
+html {
+    height: 100%;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+    height: 100%;
+    color: black;
+    font-size: 14px;
+    font-family: "Helvetica Neue", Helvetica, Tahoma, Arial, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    line-height: 1.5;
+    word-wrap: break-word;
+    word-break: break-all;
+    overflow: hidden;
+}
+
+div {
+    outline: none;
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+    -webkit-overflow-scrolling: touch;
+}
+
+select {
+    font: inherit;
+    outline: none;
+    vertical-align: middle;
+}
+
+option {
+    font: inherit;
+}
+
+img {
+    border: none;
+    vertical-align: middle;
+}
+
+input {
+    min-width: 0;
+    color: inherit;
+    font: inherit;
+    outline: none;
+    vertical-align: middle;
+
+    &::-webkit-input-placeholder {
+        color: #aaa;
+    }
+
+    &::-ms-clear {
+        display: none;
+    }
+}
+
+button {
+    font: inherit;
+    outline: none;
+}
+
+a {
+    color: inherit;
+    font: inherit;
+    text-decoration: none;
+    outline: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+span {
+    outline: none;
+}
+
+textarea {
+    color: inherit;
+    font: inherit;
+    resize: none;
+    outline: none;
+
+    &::-webkit-input-placeholder {
+        color: #aaa;
+    }
+}
+
+table {
+    border-collapse: collapse;
+    border-spacing: 0;
+}
+
+th {
+    font-weight: normal;
+}
