@@ -32,11 +32,11 @@
             closed: true,
         }),
         methods: {
-            onEvent(event) {
-                if (!event) return;
-                if (event === "opened") {
+            onEvent(type) {
+                if (!type) return;
+                if (type === "opened") {
                     this.$emit("open");
-                } else if (event === "closed") {
+                } else if (type === "closed") {
                     this.closed = true;
                     this.$emit("close");
                 }

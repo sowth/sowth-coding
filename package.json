@@ -1,12 +1,19 @@
 {
     "name": "sowth-dev-kit",
-    "version": "1.0.3",
+    "description": "",
+    "keywords": ["vue", "element-ui", "aliyun-oss"],
+    "engines": {
+        "node": ">=12"
+    },
+    "license": "MIT",
+    "version": "1.0.5",
+    "homepage": "https://github.com/sowth/sowth-dev-kit",
     "scripts": {},
     "dependencies": {
-        "@vue/cli-plugin-babel": "4.4.4",
-        "@vue/cli-plugin-router": "4.4.4",
-        "@vue/cli-service": "4.4.4",
-        "ali-oss": "6.9.0",
+        "@vue/cli-plugin-babel": "4.4.5",
+        "@vue/cli-plugin-router": "4.4.5",
+        "@vue/cli-service": "4.4.5",
+        "ali-oss": "6.9.1",
         "core-js": "3.6.5",
         "echarts": "4.8.0",
         "element-ui": "2.13.2",
@@ -21,5 +28,9 @@
         "vuex": "3.4.0",
         "xlsx": "0.16.2"
     },
-    "devDependencies": {}
+    "devDependencies": {},
+    "repository": {
+        "type": "git",
+        "url": "git://github.com/sowth/sowth-dev-kit.git"
+    }
 }
