@@ -3,12 +3,10 @@ import Vue from "./vue.js";
 import VueRouter from "./vue-router.js";
 // import VueResource from "./vue-resource.js";
 // import Vuex from "./vuex.js";
-import ElementUI from "./element-ui.js";
 
 export default {
     Vue,
     VueRouter,
     // VueResource,
     // Vuex,
-    ElementUI,
 };

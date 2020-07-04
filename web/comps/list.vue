@@ -1,12 +1,12 @@
 <template>
-    <div class="sdk-list" :class="{ 'sdk-list--window': window, 'sdk-list--fluid': fluid }">
-        <div class="sdk-list__sky" v-if="$slots.prepend || $scopedSlots.prepend">
+    <div class="sdk-web-list" :class="{ 'sdk-web-list--window': window, 'sdk-web-list--fluid': fluid }">
+        <div class="sdk-web-list__sky" v-if="$slots.prepend || $scopedSlots.prepend">
             <slot name="prepend"></slot>
         </div>
-        <div class="sdk-list__cloud" v-if="$slots.default || $scopedSlots.default">
+        <div class="sdk-web-list__cloud" v-if="$slots.default || $scopedSlots.default">
             <slot></slot>
         </div>
-        <div class="sdk-list__head" v-if="!getLayoutHidden('filters')">
+        <div class="sdk-web-list__head" v-if="!getLayoutHidden('filters')">
             <template v-for="(filter, index1) in filters">
                 <div class="filter" :key="index1" v-if="!getFilterHidden(filter)">
                     <template v-if="filter.type">
@@ -35,13 +35,13 @@
                 <el-button type="plain" size="small" @click="onEvent('reset')">重置</el-button>
             </div>
         </div>
-        <div class="sdk-list__nect" v-if="!getLayoutHidden('tools')">
+        <div class="sdk-web-list__nect" v-if="!getLayoutHidden('tools')">
             <template v-for="(tool, index5) in tools">
                 <el-button size="mini" :type="tool.type" :icon="'el-icon-' + tool.icon" :key="index5" @click.stop="callToolClick(tool)" v-if="!getToolHidden(tool)">{{ tool.name }}</el-button>
             </template>
         </div>
-        <div class="sdk-list__body" v-loading="id > 0" v-if="!getLayoutHidden('columns')">
-            <el-table class="table" ref="table" size="mini" border :height="window ? '100%' : null" :data="list" @header-click="onEvent('click-header')" @row-click="onEvent('click-row', $event)" @selection-change="onEvent('selection', $event)">
+        <div class="sdk-web-list__body" v-loading="id > 0" v-if="!getLayoutHidden('columns')">
+            <el-table ref="table" size="mini" border :height="window ? '100%' : null" :data="list" @header-click="onEvent('click-header')" @row-click="onEvent('click-row', $event)" @selection-change="onEvent('selection', $event)">
                 <template v-for="(column, index3) in columns">
                     <template v-if="!getColumnHidden(column)">
                         <template v-if="column.type === 'selection'">
@@ -67,10 +67,10 @@
                 </template>
             </el-table>
         </div>
-        <div class="sdk-list__foot" v-if="!getLayoutHidden('columns')">
+        <div class="sdk-web-list__foot" v-if="!getLayoutHidden('columns')">
             <el-pagination class="pages" background layout="total,sizes,prev,pager,next,jumper" :page-sizes="[10, 20, 30, 50]" :page-size.sync="linage" :current-page.sync="page" :total="total" @size-change="onEvent('paging')" @current-change="onEvent('paging')"></el-pagination>
         </div>
-        <div class="sdk-list__ground" v-if="$slots.append || $scopedSlots.append">
+        <div class="sdk-web-list__ground" v-if="$slots.append || $scopedSlots.append">
             <slot name="append"></slot>
         </div>
     </div>
@@ -80,7 +80,7 @@
     import "../basis/normalize-css.js";
     import "../basis/element-ui.js";
     export default {
-        name: "sdk-list",
+        name: "sdk-web-list",
         props: {
             window: {
                 type: Boolean,
@@ -92,7 +92,7 @@
             },
             fluid: {
                 type: Boolean,
-                default: false,
+                default: true,
             },
             filters: {
                 type: Array,
@@ -246,10 +246,9 @@
                 } else if (type === "search") {
                     if (typeof this.fetch === "function") {
                         this.id = id = Math.random();
-                        this.fetch(this.getQuery()).then((res) => {
+                        this.fetch(this.getQuery()).then((data) => {
                             if (this.id !== id) return;
                             this.id = 0;
-                            let data = res.data;
                             if (this.page > 1 && data.list.length === 0) {
                                 this.onEvent("dirty");
                                 this.onEvent("search");
@@ -257,7 +256,10 @@
                                 this.total = data.total;
                                 this.list = data.list;
                             }
-                        }).catch((error) => this.onEvent("dirty"));
+                        }).catch((error) => {
+                            console.error(error.name + ": " + error.message);
+                            this.onEvent("dirty");
+                        });
                     } else {
                         this.onEvent("dirty");
                     }
@@ -278,9 +280,9 @@
                 } else if (type) {
                     let valid = columns.some((column) => column.type === "selection" && !this.getColumnHidden(column));
                     if (type === "click-header") {
-                        table && valid ? table.toggleAllSelection() : (this.selects = []);
+                        table && valid ? table.toggleAllSelection() : this.selects = [];
                     } else if (type === "click-row") {
-                        table && valid ? table.toggleRowSelection(data) : (this.selects = []);
+                        table && valid ? table.toggleRowSelection(data) : this.selects = [];
                     } else if (type === "selection") {
                         this.selects = table && valid && Array.isArray(data) ? data : [];
                     }
@@ -364,7 +366,7 @@
 </script>
 
 <style lang="scss">
-    .sdk-list {
+    .sdk-web-list {
         display: flex;
         flex-direction: column;
         box-sizing: border-box;
@@ -373,18 +375,16 @@
         overflow-y: auto;
     }
 
-    .sdk-list__sky {
+    .sdk-web-list__sky {
         flex: 0 0 auto;
-        position: relative;
         margin: 5px;
     }
 
-    .sdk-list__cloud {
+    .sdk-web-list__cloud {
         flex: 0 0 auto;
-        position: relative;
     }
 
-    .sdk-list__head {
+    .sdk-web-list__head {
         flex: 0 0 auto;
         display: flex;
         flex-wrap: wrap;
@@ -421,7 +421,7 @@
         }
     }
 
-    .sdk-list__nect {
+    .sdk-web-list__nect {
         flex: 0 0 auto;
         margin: 5px;
 
@@ -431,11 +431,11 @@
         }
     }
 
-    .sdk-list__body {
+    .sdk-web-list__body {
         flex: 0 0 auto;
         margin: 5px;
 
-        &>.table {
+        .el-table {
             .cell {
                 font-size: 14px;
                 text-overflow: initial;
@@ -446,14 +446,14 @@
                     font-size: 13px;
                 }
             }
+        }
 
-            .el-table__empty-text {
-                font-size: 14px;
-            }
+        .el-table__empty-text {
+            font-size: 14px;
         }
     }
 
-    .sdk-list__foot {
+    .sdk-web-list__foot {
         flex: 0 0 auto;
         display: flex;
         align-items: center;
@@ -465,24 +465,22 @@
         }
     }
 
-    .sdk-list__ground {
+    .sdk-web-list__ground {
         flex: 0 0 auto;
-        position: relative;
         margin: 5px;
     }
 
-    .sdk-list--window {
+    .sdk-web-list--window {
         position: absolute;
         top: 0;
         left: 0;
         width: 100%;
         height: 100%;
 
-        &>.sdk-list__body {
+        .sdk-web-list__body {
             flex: 1 1 0;
-            position: relative;
 
-            &>.table {
+            .el-table {
                 position: absolute;
                 top: 0;
                 left: 0;
@@ -490,8 +488,8 @@
         }
     }
 
-    .sdk-list--fluid {
-        &>.sdk-list__head {
+    .sdk-web-list--fluid {
+        .sdk-web-list__head {
             &>.filter {
                 &>.name {
                     width: auto;

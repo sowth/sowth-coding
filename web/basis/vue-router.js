@@ -19,7 +19,7 @@ VueRouter.prototype.title = function(raw) {
             if (typeof comp.title === "string") return comp.title;
             if (typeof comp.options.title === "string") return comp.options.title;
         } catch (error) {
-            console.error(error);
+            console.error(error.name + ": " + error.message);
         }
     }
     return "";

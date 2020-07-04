@@ -1,6 +1,6 @@
 <template>
-    <el-dialog class="sdk-dialog" :title="title" :visible.sync="acting" top="0" :append-to-body="true" :close-on-click-modal="false" :close-on-press-escape="false" @opened="onEvent('opened')" @closed="onEvent('closed')">
-        <div class="sdk-dialog__body" :style="{ width: width, height: height }">
+    <el-dialog class="sdk-web-dialog" :title="title" :visible.sync="acting" top="0" :append-to-body="true" :close-on-click-modal="false" :close-on-press-escape="false" @opened="onEvent('opened')" @closed="onEvent('closed')">
+        <div class="sdk-web-dialog__body" :style="{ width: width, height: height }">
             <template v-if="!closed">
                 <slot></slot>
             </template>
@@ -12,7 +12,7 @@
     import "../basis/normalize-css.js";
     import "../basis/element-ui.js";
     export default {
-        name: "sdk-dialog",
+        name: "sdk-web-dialog",
         props: {
             title: {
                 type: String,
@@ -33,7 +33,6 @@
         }),
         methods: {
             onEvent(type) {
-                if (!type) return;
                 if (type === "opened") {
                     this.$emit("open");
                 } else if (type === "closed") {
@@ -53,7 +52,7 @@
 </script>
 
 <style lang="scss">
-    .sdk-dialog {
+    .sdk-web-dialog {
         &.el-dialog__wrapper {
             display: flex;
             justify-content: center;
@@ -104,7 +103,7 @@
         }
     }
 
-    .sdk-dialog__body {
+    .sdk-web-dialog__body {
         max-width: 80vw;
         max-height: 80vh;
         overflow: auto;
