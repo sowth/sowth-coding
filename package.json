@@ -6,7 +6,7 @@
         "node": ">=12"
     },
     "license": "MIT",
-    "version": "1.0.7",
+    "version": "1.0.8",
     "homepage": "https://github.com/sowth/sowth-dev-kit",
     "scripts": {
         "serve": "vue-cli-service serve"

@@ -105,7 +105,7 @@
                     width: 160,
                     hidden: false,
                     readonly: false,
-                    onchange: () => {},
+                    onchange: () => { },
                 }, {
                     type: "select",
                     name: "状态",
@@ -121,7 +121,7 @@
                     width: 100,
                     hidden: false,
                     readonly: false,
-                    onchange: () => {},
+                    onchange: () => { },
                 }],
             },
             tools: {
@@ -132,21 +132,21 @@
                     name: "添加",
                     key: "op1",
                     hidden: false,
-                    onclick: () => {},
+                    onclick: () => { },
                 }, {
                     type: "warning",
                     icon: "edit",
                     name: "编辑",
                     key: "op2",
                     hidden: false,
-                    onclick: () => {},
+                    onclick: () => { },
                 }, {
                     type: "danger",
                     icon: "delete",
                     name: "删除",
                     key: "op3",
-                    hidden: () => {},
-                    onclick: () => {},
+                    hidden: () => { },
+                    onclick: () => { },
                 }],
             },
             columns: {
@@ -170,7 +170,7 @@
                     value: () => "状态",
                     width: 0,
                     minWidth: 0,
-                    hidden: () => {},
+                    hidden: () => { },
                 }, {
                     type: "button",
                     name: "操作",
@@ -180,13 +180,13 @@
                         name: "操作1",
                         key: "op1",
                         hidden: false,
-                        onclick: () => {},
+                        onclick: () => { },
                     }, {
                         type: "plain",
                         name: "操作2",
                         key: "op2",
-                        hidden: () => {},
-                        onclick: () => {},
+                        hidden: () => { },
+                        onclick: () => { },
                     }],
                     width: 0,
                     minWidth: 0,
@@ -357,7 +357,7 @@
         created() {
             window.addEventListener("resize", this.handlers.onWindowResize = () => this.onEvent());
         },
-        mounted() {},
+        mounted() { },
         beforeDestroy() {
             window.removeEventListener("resize", this.handlers.onWindowResize);
             this.onEvent("dirty");
@@ -394,14 +394,14 @@
         padding: 5px;
         background-color: #f6f7f8;
 
-        &>.filter {
+        & > .filter {
             flex: 0 0 auto;
             display: flex;
             align-items: center;
             margin: 5px;
             margin-right: 10px;
 
-            &>.name {
+            & > .name {
                 flex: 0 0 auto;
                 display: flex;
                 justify-content: flex-end;
@@ -414,7 +414,7 @@
                 overflow: hidden;
             }
 
-            &>.value {
+            & > .value {
                 flex: 0 0 auto;
                 width: 180px;
             }
@@ -459,7 +459,7 @@
         align-items: center;
         margin: 5px;
 
-        &>.pages {
+        & > .pages {
             flex: 1 1 0;
             text-align: right;
         }
@@ -490,8 +490,8 @@
 
     .sdk-web-list--fluid {
         .sdk-web-list__head {
-            &>.filter {
-                &>.name {
+            & > .filter {
+                & > .name {
                     width: auto;
                 }
             }

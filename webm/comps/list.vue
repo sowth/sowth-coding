@@ -2,13 +2,13 @@
     <div class="sdk-webm-list" @touchstart="onScroll" @touchmove="onScroll" @touchend="onScroll" @touchcancel="onScroll" @scroll="onScroll">
         <div class="sdk-webm-list__wrap" :style="{ transform: 'translateY(' + pullOffset + 'px)' }">
             <div class="sdk-webm-list__pulldown" v-if="pullDown">
-                <img class="icon" src="./temp/loading.gif" v-show="refreshing">
-                <span class="text">{{ refreshing ? "正在刷新..." : pullOffset>=50 ? "松开刷新" : "下拉刷新"  }}</span>
+                <img class="icon" src="./temp/loading.gif" v-show="refreshing" />
+                <span class="text">{{ refreshing ? "正在刷新..." : pullOffset >= 50 ? "松开刷新" : "下拉刷新" }}</span>
             </div>
             <slot></slot>
             <div class="sdk-webm-list__pullup" v-if="pullUp">
-                <img class="icon" src="./temp/loading.gif" v-show="loading">
-                <span class="text">{{ loading ? "加载中..." : completed ? "没有更多了" : "加载更多"  }}</span>
+                <img class="icon" src="./temp/loading.gif" v-show="loading" />
+                <span class="text">{{ loading ? "加载中..." : completed ? "没有更多了" : "加载更多" }}</span>
             </div>
         </div>
     </div>
@@ -95,28 +95,32 @@
                         this.onScroll();
                     }
                 } else {
-                    if (this.refreshing || this.loading) {
-                        this.scrollTop = scroller.scrollTop;
-                    } else {
-                        clearTimeout(this.timer);
-                        this.timer = setTimeout(() => {
-                            this.scrollTop = scroller.scrollTop;
-                            this.offsetBottom = scroller.scrollHeight - scroller.scrollTop - scroller.offsetHeight;
-                            if (!this.pullUp || this.completed || this.refreshing || this.loading || this.pulling) return;
-                            if (this.offsetBottom > 50) {
-                                this.count = 0;
-                            } else {
-                                this.eventId = eventId = Math.random();
-                                this.loading = true;
-                                this.count++;
-                                this.$emit("load", () => {
-                                    if (this.eventId !== eventId) return;
-                                    this.loading = false;
-                                    this.count > 10 ? console.error("检测到列表组件可能陷入无限循环！") : this.onScroll();
-                                });
+                    clearTimeout(this.timer);
+                    this.timer = setTimeout(() => {
+                        type === "scroll" && console.log(2);
+                        this.$emit("scroll", {
+                            scrollTop: this.scrollTop = scroller.scrollTop,
+                            offsetBottom: this.offsetBottom = scroller.scrollHeight - scroller.scrollTop - scroller.offsetHeight,
+                            detectIntoView: (node) => {
+                                let [outer, inner] = [scroller.getBoundingClientRect(), node.getBoundingClientRect()];
+                                let outside = inner.top > outer.bottom || inner.right < outer.left || inner.bottom < outer.top || inner.left > outer.right;
+                                return !outside;
                             }
-                        }, 100);
-                    }
+                        });
+                        if (!this.pullUp || this.completed || this.refreshing || this.loading || this.pulling) return;
+                        if (this.offsetBottom > 50) {
+                            this.count = 0;
+                        } else {
+                            this.eventId = eventId = Math.random();
+                            this.loading = true;
+                            this.count++;
+                            this.$emit("load", () => {
+                                if (this.eventId !== eventId) return;
+                                this.loading = false;
+                                this.count > 10 ? console.error("检测到列表组件可能陷入无限循环！") : this.onScroll();
+                            });
+                        }
+                    }, 50);
                 }
             },
             setScrollTop(value) {
@@ -134,7 +138,7 @@
                 this.onScroll();
             },
         },
-        created() {},
+        created() { },
         mounted() {
             this.init();
         },
@@ -169,14 +173,14 @@
         justify-content: center;
         height: 50px;
 
-        &>.icon {
+        & > .icon {
             margin-right: 5px;
             width: 20px;
             height: 20px;
             object-fit: contain;
         }
 
-        &>.text {
+        & > .text {
             color: #aaa;
             font-size: 14px;
             line-height: 1;

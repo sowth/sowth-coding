@@ -5,7 +5,7 @@ const tasks = [];
 function normalizeOptions(options) {
     let form = new FormData();
     return {
-        method: types.string(options.method),
+        method: types.string(options.method).toUpperCase(),
         url: ((url, query) => {
             return Object.keys(query).forEach((key) => {
                 let value = key.length > 0 ? query[key] : null;
@@ -25,7 +25,7 @@ function normalizeOptions(options) {
         body: types.isFunction(options.body) ? options.body() : ((body, count) => {
             let form = Object.keys(body).reduce((form, key) => {
                 let value = key.length > 0 ? body[key] : null;
-                if (!types.isString(value) && !types.isNumber(value)) value = null;
+                if (!types.isString(value) && !types.isNumber(value) && !types.isFile(value)) value = null;
                 if (value !== null) count++, form.set(key, value);
                 return form;
             }, new FormData());

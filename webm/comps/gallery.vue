@@ -25,10 +25,8 @@
                 <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
                     <div class="pswp__share-tooltip"></div>
                 </div>
-                <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
-                </button>
-                <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
-                </button>
+                <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)"></button>
+                <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)"></button>
                 <div class="pswp__caption">
                     <div class="pswp__caption__center"></div>
                 </div>
@@ -80,7 +78,7 @@
                 this.destroy();
             },
         },
-        created() {},
+        created() { },
         mounted() {
             this.init();
         },
@@ -102,8 +100,7 @@
             position: static;
         }
 
-        @media (max-width: 375px) {
-
+        @media (max-width: 425px) {
             .pswp__button--zoom,
             .pswp__button--arrow--left,
             .pswp__button--arrow--right {

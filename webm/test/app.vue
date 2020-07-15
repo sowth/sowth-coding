@@ -2,12 +2,12 @@
     <div class="app">
         <sdk-webm-list pullDown pullUp :completed="!more" @refresh="refresh" @load="load">
             <div class="app__item" @click="test()">点击打开</div>
-            <div class="app__item" v-for="(item,index) in list" :key="index">{{ item }}</div>
+            <div class="app__item" v-for="(item, index) in list" :key="index">{{ item }}</div>
         </sdk-webm-list>
         <sdk-webm-gallery ref="gallery"></sdk-webm-gallery>
     </div>
 </template>
-
+d
 <script>
     import Vue from "vue";
     export default {
