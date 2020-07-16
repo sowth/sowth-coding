@@ -7,7 +7,7 @@
         <sdk-webm-gallery ref="gallery"></sdk-webm-gallery>
     </div>
 </template>
-d
+
 <script>
     import Vue from "vue";
     export default {

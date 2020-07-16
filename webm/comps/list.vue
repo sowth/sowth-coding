@@ -48,19 +48,19 @@
             count: 0,
         }),
         methods: {
-            onScroll(e) {
-                let [scroller, type, eventId] = [this.$el, e ? e.type : "", 0];
+            onScroll(event) {
+                let [scroller, type, eventId] = [this.$el, event ? event.type : "", 0];
                 if (type === "touchstart") {
                     this.pulling = false;
                     this.firstScrollTop = scroller.scrollTop;
-                    this.firstTouchY = e.touches[0].clientY;
+                    this.firstTouchY = event.touches[0].clientY;
                     this.touchStartTime = Date.now();
                 } else if (type === "touchmove") {
-                    this.lastTouchY = e.touches[0].clientY;
+                    this.lastTouchY = event.touches[0].clientY;
                     if (this.refreshing || this.loading) return;
                     if (this.pullDown) {
                         if (this.pulling || (this.firstScrollTop === 0 && this.lastTouchY > this.firstTouchY)) {
-                            e.preventDefault();
+                            event.preventDefault();
                             this.pulling = true;
                             this.pullOffset = Math.min(Math.max((this.lastTouchY - this.firstTouchY) / 2, 0), 50);
                         } else {
@@ -69,6 +69,7 @@
                     } else {
                         this.pulling = false;
                         this.pullOffset = 0;
+                        this.onScroll();
                     }
                 } else if (type === "touchend" || type === "touchcancel") {
                     if (this.refreshing || this.loading) return;
@@ -97,7 +98,6 @@
                 } else {
                     clearTimeout(this.timer);
                     this.timer = setTimeout(() => {
-                        type === "scroll" && console.log(2);
                         this.$emit("scroll", {
                             scrollTop: this.scrollTop = scroller.scrollTop,
                             offsetBottom: this.offsetBottom = scroller.scrollHeight - scroller.scrollTop - scroller.offsetHeight,
@@ -107,17 +107,20 @@
                                 return !outside;
                             }
                         });
-                        if (!this.pullUp || this.completed || this.refreshing || this.loading || this.pulling) return;
+                        if (!this.pullUp || this.completed) return;
+                        if (this.refreshing || this.loading || this.pulling) return;
                         if (this.offsetBottom > 50) {
                             this.count = 0;
                         } else {
+                            if (this.count >= 10) return;
                             this.eventId = eventId = Math.random();
                             this.loading = true;
                             this.count++;
                             this.$emit("load", () => {
                                 if (this.eventId !== eventId) return;
                                 this.loading = false;
-                                this.count > 10 ? console.error("检测到列表组件可能陷入无限循环！") : this.onScroll();
+                                this.count >= 10 && console.error("检测到列表组件可能陷入无限循环！");
+                                this.onScroll();
                             });
                         }
                     }, 50);
@@ -125,17 +128,17 @@
             },
             setScrollTop(value) {
                 this.$el.scrollTop = value;
+                this.onScroll();
             },
             destroy() {
                 clearTimeout(this.timer);
                 this.eventId = 0;
                 this.refreshing = this.loading = this.pulling = false;
-                this.pullOffset = 0;
+                this.pullOffset = this.scrollTop = this.offsetBottom = this.count = 0;
             },
             init() {
                 this.destroy();
                 this.setScrollTop(0);
-                this.onScroll();
             },
         },
         created() { },
