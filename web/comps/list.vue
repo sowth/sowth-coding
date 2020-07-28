@@ -40,15 +40,15 @@
                 <el-button size="mini" :type="tool.type" :icon="'el-icon-' + tool.icon" :key="index5" @click.stop="callToolClick(tool)" v-if="!getToolHidden(tool)">{{ tool.name }}</el-button>
             </template>
         </div>
-        <div class="sdk-web-list__body" v-loading="id > 0" v-if="!getLayoutHidden('columns')">
+        <div class="sdk-web-list__body" :class="{ 'sdk-web-list__body--loading': id > 0 }" v-loading="id > 0" v-if="!getLayoutHidden('columns')">
             <el-table ref="table" size="mini" border :height="window ? '100%' : null" :data="list" @header-click="onEvent('click-header')" @row-click="onEvent('click-row', $event)" @selection-change="onEvent('selection', $event)">
                 <template v-for="(column, index3) in columns">
                     <template v-if="!getColumnHidden(column)">
                         <template v-if="column.type === 'selection'">
-                            <el-table-column type="selection" align="center" :key="index3" :resizable="false"></el-table-column>
+                            <el-table-column type="selection" :key="index3" :resizable="false"></el-table-column>
                         </template>
                         <template v-else>
-                            <el-table-column align="center" :key="index3" :label="column.name" :resizable="false" :width="column.width > 0 ? column.width : null" :min-width="column.minWidth > 0 ? column.minWidth : null">
+                            <el-table-column :key="index3" :label="column.name" :resizable="false" :width="column.width > 0 ? column.width : null" :min-width="column.minWidth > 0 ? column.minWidth : null">
                                 <template #header>
                                     <div style="line-height: 1;" v-html="column.name"></div>
                                 </template>
@@ -68,7 +68,7 @@
             </el-table>
         </div>
         <div class="sdk-web-list__foot" v-if="!getLayoutHidden('columns')">
-            <el-pagination class="pages" background layout="total,sizes,prev,pager,next,jumper" :page-sizes="[10, 20, 30, 50]" :page-size.sync="linage" :current-page.sync="page" :total="total" @size-change="onEvent('paging')" @current-change="onEvent('paging')"></el-pagination>
+            <el-pagination class="pages" background layout="total,sizes,prev,pager,next,jumper" :page-sizes="[10, 20, 30, 50, 100]" :page-size.sync="linage" :current-page.sync="page" :total="total" @size-change="onEvent('paging')" @current-change="onEvent('paging')"></el-pagination>
         </div>
         <div class="sdk-web-list__ground" v-if="$slots.append || $scopedSlots.append">
             <slot name="append"></slot>
@@ -248,13 +248,17 @@
                         this.id = id = Math.random();
                         this.fetch(this.getQuery()).then((data) => {
                             if (this.id !== id) return;
-                            this.id = 0;
-                            if (this.page > 1 && data.list.length === 0) {
-                                this.onEvent("dirty");
-                                this.onEvent("search");
+                            if (data) {
+                                this.id = 0;
+                                if (this.page > 1 && data.list.length === 0) {
+                                    this.onEvent("dirty");
+                                    this.onEvent("search");
+                                } else {
+                                    this.total = data.total;
+                                    this.list = data.list;
+                                }
                             } else {
-                                this.total = data.total;
-                                this.list = data.list;
+                                this.onEvent("dirty");
                             }
                         }).catch((error) => {
                             console.error(error.name + ": " + error.message);
@@ -292,9 +296,9 @@
             getQuery() {
                 return this.filters.reduce((query, filter) => {
                     query[filter.key] = filter.value;
-                    query.$total = this.id > 0 ? 0 : this.total;
-                    query.$linage = this.linage;
-                    query.$page = this.page;
+                    query.total = this.id > 0 ? 0 : this.total;
+                    query.linage = this.linage;
+                    query.page = this.page;
                     return query;
                 }, {});
             },
@@ -436,9 +440,22 @@
         margin: 5px;
 
         .el-table {
+            thead {
+                color: black;
+            }
+
             .cell {
                 font-size: 14px;
                 text-overflow: initial;
+
+                a[href] {
+                    color: #0300cc;
+                    cursor: pointer;
+
+                    &:hover {
+                        text-decoration: underline;
+                    }
+                }
 
                 .el-button--mini {
                     margin: 5px;
@@ -450,6 +467,12 @@
 
         .el-table__empty-text {
             font-size: 14px;
+        }
+    }
+
+    .sdk-web-list__body--loading {
+        .el-table__empty-text {
+            opacity: 0;
         }
     }
 

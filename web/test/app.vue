@@ -3,6 +3,7 @@
         <sdk-web-list :fetch="fetchList">
             <sdk-web-dialog ref="d" title="标题" width="80vw" height="80vh">内容</sdk-web-dialog>
         </sdk-web-list>
+        <sdk-web-modal ref="modal"></sdk-web-modal>
     </div>
 </template>
 

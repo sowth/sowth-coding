@@ -1,0 +1,22 @@
+.v-modal {
+    opacity: 0.1;
+}
+
+.el-loading-mask {
+    background-color: rgba(black, 0.05);
+    cursor: not-allowed;
+
+    .el-loading-spinner {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        margin: -20px 0 0 -20px;
+        width: 40px;
+        height: 40px;
+        background: url(./loading.gif) no-repeat center center/contain;
+
+        .circular {
+            display: none;
+        }
+    }
+}

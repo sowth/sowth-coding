@@ -3,16 +3,27 @@ import types from "./types.js";
 const tasks = [];
 
 function normalizeOptions(options) {
-    let form = new FormData();
     return {
-        method: types.string(options.method).toUpperCase(),
-        url: ((url, query) => {
-            return Object.keys(query).forEach((key) => {
-                let value = key.length > 0 ? query[key] : null;
-                if (!types.isString(value) && !types.isNumber(value)) value = null;
-                if (value !== null) url.searchParams.set(key, value);
-            }), url.toString();
-        })(new URL(types.string(options.url)), types.object(options.query)),
+        method: ((method) => /^(post|get)$/i.test(method) ? method.toUpperCase() : "GET")(types.string(options.method)),
+        url: ((prefix, url, query) => {
+            try {
+                if (/^https?:\/\/\S+$/i.test(url)) {
+                    url = new URL(url);
+                } else {
+                    let link = document.createElement("a");
+                    link.setAttribute("href", prefix + url);
+                    url = new URL(link.origin + link.pathname + link.search);
+                }
+                return Object.keys(query).forEach((key) => {
+                    let value = key.length > 0 ? query[key] : null;
+                    if (!types.isString(value) && !types.isNumber(value)) value = null;
+                    if (value !== null) url.searchParams.set(key, value);
+                }), url.toString();
+            } catch (error) {
+                console.error(error.name + ": " + error.message);
+                return url;
+            }
+        })(types.string(options.prefix), types.string(options.url), types.object(options.query)),
         headers: ((headers) => {
             return Object.keys(headers).reduce((list, key) => {
                 let value = key.length > 0 ? headers[key] : null;
@@ -77,20 +88,20 @@ function createInst(options) {
     inst.destroy = () => {
         let index = tasks.indexOf(inst);
         if (index > -1) tasks.splice(index, 1);
-        return inst.readyState !== 4 && inst.abort(), true;
+        if (inst.readyState !== 4) inst.abort();
+        return true;
     };
     inst.send(opts.body);
     tasks.push(inst);
 }
 
 export default {
-    prefix: "",
     options: {},
     post(url, body, options) {
         return types.promise((resolve) => createInst({
             ...this.options,
             method: "POST",
-            url: /^https?:\/\/\S+$/i.test(url) ? url : this.prefix + url,
+            url: url,
             body: body,
             query: {},
             ...types.object(options),
@@ -100,8 +111,8 @@ export default {
     get(url, query, options) {
         return types.promise((resolve) => createInst({
             ...this.options,
-            method: "POST",
-            url: /^https?:\/\/\S+$/i.test(url) ? url : this.prefix + url,
+            method: "GET",
+            url: url,
             body: {},
             query: query,
             ...types.object(options),
