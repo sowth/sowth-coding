@@ -1,10 +1,12 @@
 import types from "./types.js";
+const { string, int, bool, object, array, func, promise } = types;
+const { isString, isNumber, isFunction, isFile } = types;
 
 const tasks = [];
 
 function normalizeOptions(options) {
     return {
-        method: ((method) => /^(post|get)$/i.test(method) ? method.toUpperCase() : "GET")(types.string(options.method)),
+        method: ((method) => /^(post|get)$/i.test(method) ? method.toUpperCase() : "GET")(string(options.method)),
         url: ((prefix, url, query) => {
             try {
                 if (/^https?:\/\/\S+$/i.test(url)) {
@@ -16,36 +18,36 @@ function normalizeOptions(options) {
                 }
                 return Object.keys(query).forEach((key) => {
                     let value = key.length > 0 ? query[key] : null;
-                    if (!types.isString(value) && !types.isNumber(value)) value = null;
+                    if (!isString(value) && !isNumber(value)) value = null;
                     if (value !== null) url.searchParams.set(key, value);
                 }), url.toString();
             } catch (error) {
                 console.error(error.name + ": " + error.message);
                 return url;
             }
-        })(types.string(options.prefix), types.string(options.url), types.object(options.query)),
+        })(string(options.prefix), string(options.url), object(options.query)),
         headers: ((headers) => {
             return Object.keys(headers).reduce((list, key) => {
                 let value = key.length > 0 ? headers[key] : null;
-                if (!types.isString(value) && !types.isNumber(value)) value = null;
+                if (!isString(value) && !isNumber(value)) value = null;
                 if (value !== null) list.push([key, value]);
                 return list;
             }, []);
-        })(types.object(options.headers)),
-        credentials: types.bool(options.credentials),
-        body: types.isFunction(options.body) ? options.body() : ((body, count) => {
+        })(object(options.headers)),
+        credentials: bool(options.credentials),
+        body: isFunction(options.body) ? options.body() : ((body, count) => {
             let form = Object.keys(body).reduce((form, key) => {
                 let value = key.length > 0 ? body[key] : null;
-                if (!types.isString(value) && !types.isNumber(value) && !types.isFile(value)) value = null;
+                if (!isString(value) && !isNumber(value) && !isFile(value)) value = null;
                 if (value !== null) count++, form.set(key, value);
                 return form;
             }, new FormData());
             return count > 0 ? form : null;
-        })(types.object(options.body), 0),
-        progress: types.isFunction(options.progress) ? options.progress : null,
-        responseType: types.string(options.responseType),
-        timeout: types.int(options.timeout),
-        callback: types.func(options.callback),
+        })(object(options.body), 0),
+        progress: isFunction(options.progress) ? options.progress : null,
+        responseType: string(options.responseType),
+        timeout: int(options.timeout),
+        callback: func(options.callback),
     };
 }
 
@@ -98,24 +100,24 @@ function createInst(options) {
 export default {
     options: {},
     post(url, body, options) {
-        return types.promise((resolve) => createInst({
+        return promise((resolve) => createInst({
             ...this.options,
             method: "POST",
             url: url,
             body: body,
             query: {},
-            ...types.object(options),
+            ...object(options),
             callback: resolve,
         }));
     },
     get(url, query, options) {
-        return types.promise((resolve) => createInst({
+        return promise((resolve) => createInst({
             ...this.options,
             method: "GET",
             url: url,
             body: {},
             query: query,
-            ...types.object(options),
+            ...object(options),
             callback: resolve,
         }));
     },

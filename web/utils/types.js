@@ -121,6 +121,12 @@ function error(value) {
     return isError(value) ? value : new Error("" + value);
 }
 
+function findValue(list, sourceKeyName, sourceKeyValue, destKeyName, destKeyValue) {
+    if (!isArray(list) || isInvalid(sourceKeyName) || isInvalid(destKeyName)) return destKeyValue;
+    let data = list.find((data) => !isInvalid(data) && data[sourceKeyName] === sourceKeyValue);
+    return isInvalid(data) ? destKeyValue : data[destKeyName];
+}
+
 function traverse(source, children, handler) {
     if (!isArray(source) || !isString(children) || !isFunction(handler)) return;
     let [ended, result] = [false, null];
@@ -273,6 +279,7 @@ export default {
     bool,
     promise,
     error,
+    findValue,
     traverse,
     deepCopy,
     delInvalidProp,

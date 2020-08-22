@@ -5,10 +5,7 @@
 <script>
     import "../basis/normalize-css.js";
     import "../basis/element-ui.js";
-    import {
-        Message,
-        MessageBox,
-    } from "element-ui";
+    import { Message, MessageBox } from "element-ui";
     import types from "../utils/types.js";
     const { string, int, array } = types;
     export default {
