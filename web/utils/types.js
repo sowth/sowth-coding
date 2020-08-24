@@ -258,6 +258,88 @@ function toMagicImgURL(value, width, height) {
     return value && prefix + "?" + query.join("&");
 }
 
+function selectFile(accept) {
+    //浏览器是Safari时，必须在元素的事件监听器里面调用这个函数才能成功，Chrome浏览器则不限制
+    return promise((resolve) => {
+        let input = document.createElement("input");
+        input.setAttribute("type", "file");
+        input.setAttribute("accept", string(accept) || "*/*");
+        input.setAttribute("style", "position:absolute;top:0;left:0;width:0;height:0;font-size:0;line-height:0;overflow:hidden;");
+        input.onchange = () => {
+            let file = input.files[0];
+            input.onchange = null;
+            input.remove();
+            resolve(file);
+        };
+        document.body.appendChild(input);
+        input.click();
+    });
+}
+
+function readFile(file, type) {
+    return promise((resolve) => {
+        let reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = () => resolve(null);
+        type = /^(buffer|url|text)$/i.test(type) ? type.toLowerCase() : "text";
+        type === "buffer" && reader.readAsArrayBuffer(file);
+        type === "url" && reader.readAsDataURL(file);
+        type === "text" && reader.readAsText(file);
+    }).catch((error) => null);
+}
+
+function storage(...args) {
+    let [area, key, value] = args;
+    let name = "sdk-web-utils-types";
+    let data = object(localStorage.getItem(name));
+    if (args.length === 0) return data;
+    data[area] = object(data[area]);
+    if (args.length === 1) return data[area];
+    if (args.length === 2) return data[area][key];
+    data[area][key] = isInvalid(value) ? null : value;
+    localStorage.setItem(name, JSON.stringify(data));
+    return data[area][key];
+}
+
+function clearStorage() {
+    let name = "sdk-web-utils-types";
+    localStorage.removeItem(name);
+}
+
+function session(...args) {
+    let [area, key, value] = args;
+    let name = "sdk-web-utils-types";
+    let data = object(sessionStorage.getItem(name));
+    if (args.length === 0) return data;
+    data[area] = object(data[area]);
+    if (args.length === 1) return data[area];
+    if (args.length === 2) return data[area][key];
+    data[area][key] = isInvalid(value) ? null : value;
+    sessionStorage.setItem(name, JSON.stringify(data));
+    return data[area][key];
+}
+
+function clearSession() {
+    let name = "sdk-web-utils-types";
+    sessionStorage.removeItem(name);
+}
+
+function cache(...args) {
+    let [area, key, value] = args;
+    let name = "sdk-web-utils-types";
+    let data = cache[name] = object(cache[name]);
+    if (args.length === 0) return data;
+    data[area] = object(data[area]);
+    if (args.length === 1) return data[area];
+    if (args.length === 2) return data[area][key];
+    return data[area][key] = isInvalid(value) ? null : value;
+}
+
+function clearCache() {
+    let name = "sdk-web-utils-types";
+    cache[name] = null;
+}
+
 export default {
     isObject,
     isPlainObject,
@@ -291,4 +373,12 @@ export default {
     toTimeString,
     toMoneyString,
     toMagicImgURL,
+    selectFile，
+    readFile,
+    storage,
+    clearStorage,
+    session,
+    clearSession,
+    cache,
+    clearCache,
 };
