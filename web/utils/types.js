@@ -259,20 +259,43 @@ function toMagicImgURL(value, width, height) {
 }
 
 function selectFile(accept) {
-    //浏览器是Safari时，必须在元素的事件监听器里面调用这个函数才能成功，Chrome浏览器则不限制
     return promise((resolve) => {
-        let input = document.createElement("input");
-        input.setAttribute("type", "file");
-        input.setAttribute("accept", string(accept) || "*/*");
-        input.setAttribute("style", "position:absolute;top:0;left:0;width:0;height:0;font-size:0;line-height:0;overflow:hidden;");
-        input.onchange = () => {
-            let file = input.files[0];
-            input.onchange = null;
-            input.remove();
-            resolve(file);
-        };
-        document.body.appendChild(input);
-        input.click();
+        if (typeof document === "object" && isObject(document)) {
+            let input = document.createElement("input");
+            input.setAttribute("type", "file");
+            input.setAttribute("accept", string(accept) || "*/*");
+            input.setAttribute("style", "position:absolute;top:0;left:0;width:0;height:0;font-size:0;line-height:0;overflow:hidden;");
+            input.onchange = () => {
+                let file = input.files[0];
+                input.onchange = null;
+                input.remove();
+                resolve(file);
+            };
+            document.body.appendChild(input);
+            input.click();
+        } else if (typeof wx === "object" && isObject(wx) && isObject(wx.env)) {
+            wx.chooseImage({
+                complete: (res) => {
+                    if (!res.errMsg.endsWith(":ok")) return resolve(null);
+                    let file = res.tempFiles[0];
+                    file.name = Date.now() + ".";
+                    file.type = "image/";
+                    wx.getImageInfo({
+                        src: file.path,
+                        complete: (res) => {
+                            if (!res.errMsg.endsWith(":ok")) return resolve(null);
+                            if (/^(jpg|jpeg|png|gif|webp|bmp)$/i.test(res.type)) {
+                                file.name += res.type === "jpeg" ? "jpg" : res.type;
+                                file.type += res.type === "jpg" ? "jpeg" : res.type;
+                            } else {
+                                file = null;
+                            }
+                            resolve(file);
+                        },
+                    });
+                },
+            });
+        }
     });
 }
 
@@ -291,37 +314,63 @@ function readFile(file, type) {
 function storage(...args) {
     let [area, key, value] = args;
     let name = "sdk-web-utils-types";
-    let data = object(localStorage.getItem(name));
+    let handler = (...args) => {
+        if (args.length === 0) return;
+        if (typeof localStorage === "object" && isObject(localStorage)) {
+            return args.length > 1 ? localStorage.setItem(args[0], args[1]) : localStorage.getItem(args[0]);
+        } else if (typeof wx === "object" && isObject(wx) && isObject(wx.env)) {
+            return args.length > 1 ? wx.setStorageSync(args[0], args[1]) : wx.getStorageSync(args[0]);
+        }
+    };
+    let data = object(handler(name));
     if (args.length === 0) return data;
     data[area] = object(data[area]);
     if (args.length === 1) return data[area];
     if (args.length === 2) return data[area][key];
     data[area][key] = isInvalid(value) ? null : value;
-    localStorage.setItem(name, JSON.stringify(data));
+    handler(name, JSON.stringify(data));
     return data[area][key];
 }
 
 function clearStorage() {
     let name = "sdk-web-utils-types";
-    localStorage.removeItem(name);
+    if (typeof localStorage === "object" && isObject(localStorage)) {
+        localStorage.removeItem(name);
+    } else if (typeof wx === "object" && isObject(wx) && isObject(wx.env)) {
+        wx.removeStorageSync(name);
+    }
 }
 
 function session(...args) {
     let [area, key, value] = args;
     let name = "sdk-web-utils-types";
-    let data = object(sessionStorage.getItem(name));
+    let handler = (...args) => {
+        if (args.length === 0) return;
+        if (typeof sessionStorage === "object" && isObject(sessionStorage)) {
+            return args.length > 1 ? sessionStorage.setItem(args[0], args[1]) : sessionStorage.getItem(args[0]);
+        } else if (typeof wx === "object" && isObject(wx) && isObject(wx.env)) {
+            let data = getApp().globalData;
+            return args.length > 1 ? data[args[0]] = args[1] : data[args[0]];
+        }
+    };
+    let data = object(handler(name));
     if (args.length === 0) return data;
     data[area] = object(data[area]);
     if (args.length === 1) return data[area];
     if (args.length === 2) return data[area][key];
     data[area][key] = isInvalid(value) ? null : value;
-    sessionStorage.setItem(name, JSON.stringify(data));
+    handler(name, JSON.stringify(data));
     return data[area][key];
 }
 
 function clearSession() {
     let name = "sdk-web-utils-types";
-    sessionStorage.removeItem(name);
+    if (typeof sessionStorage === "object" && isObject(sessionStorage)) {
+        sessionStorage.removeItem(name);
+    } else if (typeof wx === "object" && isObject(wx) && isObject(wx.env)) {
+        let data = getApp().globalData;
+        delete data[name];
+    }
 }
 
 function cache(...args) {
