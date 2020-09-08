@@ -422,7 +422,7 @@ export default {
     toTimeString,
     toMoneyString,
     toMagicImgURL,
-    selectFile，
+    selectFile,
     readFile,
     storage,
     clearStorage,
