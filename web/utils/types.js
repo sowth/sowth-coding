@@ -52,7 +52,7 @@ function isError(value) {
 function object(value) {
     if (isObject(value)) {
         return value;
-    } else if (isString(value) && /^\{[\s\S]*\}$/.test(value)) {
+    } else if (isString(value) && value[0] === "{") {
         try {
             return JSON.parse(value);
         } catch (e) {
@@ -72,7 +72,7 @@ function array(value) {
         return value;
     } else if (isObject(value) && value.toString() === "[object Arguments]") {
         return [].slice.call(value);
-    } else if (isString(value) && /^\[[\s\S]*\]$/.test(value)) {
+    } else if (isString(value) && value[0] === "[") {
         try {
             return JSON.parse(value);
         } catch (e) {
@@ -320,6 +320,8 @@ function storage(...args) {
             return args.length > 1 ? localStorage.setItem(args[0], args[1]) : localStorage.getItem(args[0]);
         } else if (typeof wx === "object" && isObject(wx) && isObject(wx.env)) {
             return args.length > 1 ? wx.setStorageSync(args[0], args[1]) : wx.getStorageSync(args[0]);
+        } else if (typeof uni === "object" && isObject(uni)) {
+            return args.length > 1 ? uni.setStorageSync(args[0], args[1]) : uni.getStorageSync(args[0]);
         }
     };
     let data = object(handler(name));
@@ -338,6 +340,8 @@ function clearStorage() {
         localStorage.removeItem(name);
     } else if (typeof wx === "object" && isObject(wx) && isObject(wx.env)) {
         wx.removeStorageSync(name);
+    } else if (typeof uni === "object" && isObject(uni)) {
+        uni.removeStorageSync(name);
     }
 }
 

@@ -6,15 +6,15 @@
         "node": ">=12"
     },
     "license": "MIT",
-    "version": "1.0.15",
+    "version": "1.0.17",
     "homepage": "https://github.com/sowth/sowth-dev-kit",
     "scripts": {
         "serve": "vue-cli-service serve"
     },
     "dependencies": {
-        "@vue/cli-plugin-babel": "4.5.4",
-        "@vue/cli-plugin-router": "4.5.4",
-        "@vue/cli-service": "4.5.4",
+        "@vue/cli-plugin-babel": "4.5.7",
+        "@vue/cli-plugin-router": "4.5.7",
+        "@vue/cli-service": "4.5.7",
         "ali-oss": "6.10.0",
         "core-js": "3.6.5",
         "echarts": "4.9.0",
@@ -22,13 +22,13 @@
         "node-sass": "4.14.1",
         "normalize.css": "8.0.1",
         "qrcode": "1.4.4",
-        "sass-loader": "8.0.2",
+        "sass-loader": "10.0.2",
         "vue": "2.6.12",
         "vue-resource": "1.5.1",
-        "vue-router": "3.4.3",
+        "vue-router": "3.4.6",
         "vue-template-compiler": "2.6.12",
         "vuex": "3.5.1",
-        "xlsx": "0.16.6"
+        "xlsx": "0.16.8"
     },
     "devDependencies": {},
     "repository": {
