@@ -2,6 +2,24 @@ import Vue from "vue";
 import VueRouter from "vue-router";
 
 const match = VueRouter.prototype.match;
+const push = VueRouter.prototype.push;
+const replace = VueRouter.prototype.replace;
+
+VueRouter.prototype.push = function(location, ...args) {
+    if (typeof location === "string" && location[0] !== "/") location = {
+        name: location,
+    };
+    let promise = push.call(this, location, ...args);
+    return promise instanceof Promise ? promise.catch(() => { }) : promise;
+};
+
+VueRouter.prototype.replace = function(location, ...args) {
+    if (typeof location === "string" && location[0] !== "/") location = {
+        name: location,
+    };
+    let promise = replace.call(this, location, ...args);
+    return promise instanceof Promise ? promise.catch(() => { }) : promise;
+};
 
 VueRouter.prototype.match = function(raw, ...args) {
     if (typeof raw === "string" && raw[0] !== "/") raw = {

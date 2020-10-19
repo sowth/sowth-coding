@@ -37,7 +37,7 @@
         </div>
         <div class="sdk-web-list__nect" v-if="!getLayoutHidden('tools')">
             <template v-for="(tool, index5) in tools">
-                <el-button size="mini" :type="tool.type" :icon="'el-icon-' + tool.icon" :key="index5" @click.stop="callToolClick(tool)" v-if="!getToolHidden(tool)">{{ tool.name }}</el-button>
+                <el-button size="mini" :type="tool.type" :icon="tool.icon ? 'el-icon-' + tool.icon : null" :key="index5" @click.stop="callToolClick(tool)" v-if="!getToolHidden(tool)">{{ tool.name }}</el-button>
             </template>
         </div>
         <div class="sdk-web-list__body" :class="{ 'sdk-web-list__body--loading': id > 0 }" v-loading="id > 0" v-if="!getLayoutHidden('columns')">
@@ -50,14 +50,14 @@
                         <template v-else>
                             <el-table-column :key="index3" :label="column.name" :resizable="false" :width="column.width > 0 ? column.width : null" :min-width="column.minWidth > 0 ? column.minWidth : null">
                                 <template #header>
-                                    <div style="line-height: 1;" v-html="column.name"></div>
+                                    <div style="line-height: 1" v-html="column.name"></div>
                                 </template>
                                 <template #default="scope">
                                     <template v-if="column.type === 'text'">{{ getColumnRowValue(column, scope.row) }}</template>
                                     <div v-else-if="column.type === 'html'" v-html="getColumnRowValue(column, scope.row)"></div>
                                     <template v-else-if="column.type === 'button'">
                                         <template v-for="(button, index4) in getColumnRowValue(column, scope.row)">
-                                            <el-button size="mini" :type="button.type" :key="index4" @click.stop="callColumnRowButtonClick(column, scope.row, button)" v-if="!getColumnRowButtonHidden(column, scope.row, button)">{{ button.name }}</el-button>
+                                            <el-button size="mini" :type="button.type" :icon="button.icon ? 'el-icon-' + button.icon : null" :key="index4" @click.stop="callColumnRowButtonClick(column, scope.row, button)" v-if="!getColumnRowButtonHidden(column, scope.row, button)">{{ button.name }}</el-button>
                                         </template>
                                     </template>
                                 </template>
@@ -217,6 +217,10 @@
                 type: String,
                 default: "",
             },
+            extraQuery: {
+                type: Object,
+                default: () => ({}),
+            },
             fetch: {
                 type: Function,
                 default: () => Promise.reject(new Error("component prop fetch is not defined.")),
@@ -274,6 +278,20 @@
                     this.page = 1;
                     this.list = [];
                     this.selects = [];
+                    ["filters", "tools", "columns"].forEach((name) => {
+                        let keys1 = this["display" + name[0].toUpperCase() + name.substr(1)].split(",");
+                        let keys2 = this["hidden" + name[0].toUpperCase() + name.substr(1)].split(",");
+                        let result = this[name];
+                        keys1.reduce((list, key) => {
+                            let index = key.length > 0 ? list.findIndex((data) => data.key === key) : -1;
+                            if (index > -1) result.push(list.splice(index, 1)[0]);
+                            return list;
+                        }, result.splice(0)).forEach((data) => result.push(data));
+                        keys2.forEach((key) => {
+                            let data = key.length > 0 && result.find((data) => data.key === key);
+                            if (data) data.hidden = true;
+                        });
+                    });
                     filter && typeof filter.onchange === "function" && filter.onchange(filters, filter);
                     filter && this.onEvent("search");
                 } else if (type === "paging") {
@@ -294,13 +312,16 @@
                 table && table.doLayout();
             },
             getQuery() {
-                return this.filters.reduce((query, filter) => {
-                    query[filter.key] = filter.value;
-                    query.total = this.id > 0 ? 0 : this.total;
-                    query.linage = this.linage;
-                    query.page = this.page;
+                let query = this.filters.reduce((query, filter) => {
+                    if (filter) query[filter.key] = filter.value;
                     return query;
                 }, {});
+                let extra = this.extraQuery;
+                return Object.assign(query, extra, {
+                    total: this.id > 0 ? 0 : this.total,
+                    linage: this.linage,
+                    page: this.page,
+                });
             },
             getLayoutHidden(name) {
                 let hidden1 = this.layout.length > 0 && !this.layout.split(",").includes(name);
@@ -336,30 +357,13 @@
                 type === "button" && typeof onclick === "function" && onclick.apply(button, [row, this.list, this.selects, this.getQuery()]);
             },
             init() {
-                this.id = 0;
-                this.total = 0;
-                this.page = 1;
-                this.list = [];
-                this.selects = [];
-                ["filters", "tools", "columns"].forEach((name) => {
-                    let keys1 = this["display" + name[0].toUpperCase() + name.substr(1)].split(",");
-                    let keys2 = this["hidden" + name[0].toUpperCase() + name.substr(1)].split(",");
-                    let result = this[name];
-                    keys1.reduce((list, key) => {
-                        let index = key.length > 0 ? list.findIndex((data) => data.key === key) : -1;
-                        if (index > -1) result.push(list.splice(index, 1)[0]);
-                        return list;
-                    }, result.splice(0)).forEach((data) => result.push(data));
-                    keys2.forEach((key) => {
-                        let data = key.length > 0 && result.find((data) => data.key === key);
-                        if (data) data.hidden = true;
-                    });
-                });
+                this.onEvent("dirty");
                 this.onEvent("search");
             },
         },
         created() {
             window.addEventListener("resize", this.handlers.onWindowResize = () => this.onEvent());
+            this.onEvent("dirty");
         },
         mounted() { },
         beforeDestroy() {

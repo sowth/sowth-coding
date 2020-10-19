@@ -7,7 +7,7 @@
     import "../basis/element-ui.js";
     import { Message, MessageBox } from "element-ui";
     import types from "../utils/types.js";
-    const { string, int, array } = types;
+    const { isNumber, string, int, array } = types;
     export default {
         name: "sdk-web-modal",
         props: {},
@@ -16,61 +16,68 @@
         }),
         methods: {
             toast(content, icon, duration) {
-                return new Promise((resolve) => Message({
-                    customClass: this.$options.name,
-                    message: string(content),
-                    type: string(icon) || "info",
-                    dangerouslyUseHTMLString: true,
-                    duration: Math.max(int(duration) || 2000, 500),
-                    showClose: true,
-                    onClose: () => resolve(),
-                }));
+                return new Promise((resolve) => {
+                    if (!string(content)) return resolve();
+                    Message({
+                        customClass: this.$options.name,
+                        message: string(content),
+                        type: string(icon) || "info",
+                        dangerouslyUseHTMLString: true,
+                        duration: Math.max(isNumber(duration) ? int(duration) : 2000, 500),
+                        showClose: true,
+                        onClose: () => resolve(),
+                    });
+                });
             },
             alert(title, content, icon, btns) {
-                if (this.acting) return Promise.resolve();
-                this.acting = true;
-                return new Promise((resolve) => MessageBox.alert(string(content), string(title), {
-                    customClass: this.$options.name,
-                    dangerouslyUseHTMLString: true,
-                    type: string(icon) || "info",
-                    callback: (action) => setTimeout(() => {
-                        this.acting = false;
-                        resolve(action === "confirm");
-                    }, 350),
-                    showClose: !["warning", "error"].includes(icon),
-                    distinguishCancelAndClose: true,
-                    showCancelButton: array(btns).length > 1,
-                    showConfirmButton: true,
-                    cancelButtonText: string(array(btns)[1]) || "取消",
-                    confirmButtonText: string(array(btns)[0]) || "确定",
-                    closeOnClickModal: false,
-                    closeOnPressEscape: false,
-                    closeOnHashChange: false,
-                }));
+                return new Promise((resolve) => {
+                    if (this.acting || !string(content)) return resolve();
+                    this.acting = true;
+                    MessageBox.alert(string(content), string(title), {
+                        customClass: this.$options.name,
+                        dangerouslyUseHTMLString: true,
+                        type: string(icon) || "info",
+                        callback: (action) => setTimeout(() => {
+                            this.acting = false;
+                            resolve(action === "confirm");
+                        }, 350),
+                        showClose: !["warning", "error"].includes(string(icon)),
+                        distinguishCancelAndClose: true,
+                        showConfirmButton: true,
+                        showCancelButton: array(btns).length > 1,
+                        confirmButtonText: string(array(btns)[0]) || "确定",
+                        cancelButtonText: string(array(btns)[1]) || "取消",
+                        closeOnClickModal: false,
+                        closeOnPressEscape: false,
+                        closeOnHashChange: false,
+                    });
+                });
             },
             prompt(title, content, placeholder, value, btns) {
-                if (this.acting) return Promise.resolve();
-                this.acting = true;
-                return new Promise((resolve) => MessageBox.prompt(string(content), string(title), {
-                    customClass: this.$options.name,
-                    dangerouslyUseHTMLString: true,
-                    callback: (action, instance) => setTimeout(() => {
-                        this.acting = false;
-                        resolve(action === "confirm" ? instance.inputValue : null);
-                    }, 350),
-                    showClose: true,
-                    distinguishCancelAndClose: true,
-                    showCancelButton: true,
-                    showConfirmButton: true,
-                    cancelButtonText: string(array(btns)[1]) || "取消",
-                    confirmButtonText: string(array(btns)[0]) || "确定",
-                    closeOnClickModal: false,
-                    closeOnPressEscape: false,
-                    closeOnHashChange: false,
-                    inputPlaceholder: string(placeholder) || "请在此输入",
-                    inputType: "text",
-                    inputValue: string(value),
-                }));
+                return new Promise((resolve) => {
+                    if (this.acting) return resolve();
+                    this.acting = true;
+                    MessageBox.prompt(string(content), string(title), {
+                        customClass: this.$options.name,
+                        dangerouslyUseHTMLString: true,
+                        callback: (action, instance) => setTimeout(() => {
+                            this.acting = false;
+                            resolve(action === "confirm" ? instance.inputValue : null);
+                        }, 350),
+                        showClose: true,
+                        distinguishCancelAndClose: true,
+                        showConfirmButton: true,
+                        showCancelButton: true,
+                        confirmButtonText: string(array(btns)[0]) || "确定",
+                        cancelButtonText: string(array(btns)[1]) || "取消",
+                        closeOnClickModal: false,
+                        closeOnPressEscape: false,
+                        closeOnHashChange: false,
+                        inputPlaceholder: string(placeholder) || "请在此输入",
+                        inputType: "text",
+                        inputValue: string(value),
+                    });
+                });
             },
         },
     };
