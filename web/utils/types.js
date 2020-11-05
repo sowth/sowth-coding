@@ -258,6 +258,16 @@ function toMagicImgURL(value, width, height) {
     return value && prefix + "?" + query.join("&");
 }
 
+function toHtmlLink(text, href, attrs) {
+    let node = document.createElement("a");
+    if (!isInvalid(text)) node.innerText = string(text);
+    if (!isInvalid(href)) node.setAttribute("href", string(href));
+    if (isObject(attrs)) Object.entries(attrs).forEach(([key, value]) => {
+        if (key.length > 0 && !isInvalid(value)) node.setAttribute(key, value);
+    });
+    return node.outerHTML;
+}
+
 function selectFile(accept) {
     return promise((resolve) => {
         if (typeof document === "object" && isObject(document)) {
@@ -426,6 +436,7 @@ export default {
     toTimeString,
     toMoneyString,
     toMagicImgURL,
+    toHtmlLink,
     selectFile,
     readFile,
     storage,

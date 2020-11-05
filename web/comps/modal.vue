@@ -18,6 +18,7 @@
             toast(content, icon, duration) {
                 return new Promise((resolve) => {
                     if (!string(content)) return resolve();
+                    Message.closeAll();
                     Message({
                         customClass: this.$options.name,
                         message: string(content),
